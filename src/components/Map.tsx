@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { INDICES, MAP_CENTER, MAP_ZOOM, TRUECOLOR_ID } from '../constants'
@@ -24,7 +24,8 @@ const OUTLINE_URL = `${import.meta.env.BASE_URL}field-outline.geojson`
 export default function Map({ baseMap, showTrueColor, showOutline, showIndex, activeIndex, opacity }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
-  const readyRef = useRef(false)
+  // ロード完了を state にして、各同期 useEffect がロード後に確実に再実行されるようにする
+  const [ready, setReady] = useState(false)
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -110,53 +111,54 @@ export default function Map({ baseMap, showTrueColor, showOutline, showIndex, ac
     map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }), 'bottom-left')
 
     map.on('load', () => {
-      readyRef.current = true
+      setReady(true)
     })
 
     mapRef.current = map
     return () => {
-      readyRef.current = false
+      setReady(false)
       map.remove()
+      mapRef.current = null
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // 背景の切り替え
   useEffect(() => {
     const map = mapRef.current
-    if (!map || !readyRef.current) return
+    if (!map || !ready) return
     map.setLayoutProperty('lyr-gsi-photo', 'visibility', baseMap === 'satellite' ? 'visible' : 'none')
     map.setLayoutProperty('lyr-osm', 'visibility', baseMap === 'map' ? 'visible' : 'none')
-  }, [baseMap])
+  }, [baseMap, ready])
 
   // トゥルーカラーの ON/OFF
   useEffect(() => {
     const map = mapRef.current
-    if (!map || !readyRef.current) return
+    if (!map || !ready) return
     map.setLayoutProperty(`lyr-${TRUECOLOR_ID}`, 'visibility', showTrueColor ? 'visible' : 'none')
-  }, [showTrueColor])
+  }, [showTrueColor, ready])
 
   // 圃場輪郭の ON/OFF
   useEffect(() => {
     const map = mapRef.current
-    if (!map || !readyRef.current) return
+    if (!map || !ready) return
     map.setLayoutProperty('lyr-field-outline', 'visibility', showOutline ? 'visible' : 'none')
-  }, [showOutline])
+  }, [showOutline, ready])
 
   // 植生指数の表示ON/OFF＋排他切り替え
   useEffect(() => {
     const map = mapRef.current
-    if (!map || !readyRef.current) return
+    if (!map || !ready) return
     INDICES.forEach((idx) => {
       map.setLayoutProperty(`lyr-${idx}`, 'visibility', showIndex && idx === activeIndex ? 'visible' : 'none')
     })
-  }, [activeIndex, showIndex])
+  }, [activeIndex, showIndex, ready])
 
   // 植生指数の透過度
   useEffect(() => {
     const map = mapRef.current
-    if (!map || !readyRef.current) return
+    if (!map || !ready) return
     map.setPaintProperty(`lyr-${activeIndex}`, 'raster-opacity', opacity)
-  }, [activeIndex, opacity])
+  }, [activeIndex, opacity, ready])
 
   return <div ref={containerRef} className="map-container" />
 }
