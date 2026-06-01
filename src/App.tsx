@@ -13,28 +13,36 @@ export default function App() {
 
   return (
     <div className="app">
-      <LayerControl
-        baseMap={baseMap}
-        showTrueColor={showTrueColor}
-        showOutline={showOutline}
-        showIndex={showIndex}
-        activeIndex={activeIndex}
-        opacity={opacity}
-        onBaseMapChange={setBaseMap}
-        onTrueColorChange={setShowTrueColor}
-        onOutlineChange={setShowOutline}
-        onIndexShowChange={setShowIndex}
-        onIndexChange={setActiveIndex}
-        onOpacityChange={setOpacity}
-      />
-      <Map
-        baseMap={baseMap}
-        showTrueColor={showTrueColor}
-        showOutline={showOutline}
-        showIndex={showIndex}
-        activeIndex={activeIndex}
-        opacity={opacity}
-      />
+      <header className="app-header">
+        <div className="app-header-brand">
+          <span className="app-header-title">新得町営牧場</span>
+        </div>
+        <nav className="app-header-nav" />
+      </header>
+      <div className="app-body">
+        <LayerControl
+          baseMap={baseMap}
+          showTrueColor={showTrueColor}
+          showOutline={showOutline}
+          showIndex={showIndex}
+          activeIndex={activeIndex}
+          opacity={opacity}
+          onBaseMapChange={setBaseMap}
+          onTrueColorChange={setShowTrueColor}
+          onOutlineChange={setShowOutline}
+          onIndexShowChange={setShowIndex}
+          onIndexChange={setActiveIndex}
+          onOpacityChange={setOpacity}
+        />
+        <Map
+          baseMap={baseMap}
+          showTrueColor={showTrueColor}
+          showOutline={showOutline}
+          showIndex={showIndex}
+          activeIndex={activeIndex}
+          opacity={opacity}
+        />
+      </div>
     </div>
   )
 }

@@ -8,7 +8,38 @@ html, body, #root {
 
 .app {
   display: flex;
+  flex-direction: column;
   height: 100%;
+}
+
+/* ヘッダー（zksdx mabiki の bg-gray-800 ダークバーに合わせた配色） */
+.app-header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #1f2937;
+  color: #fff;
+  padding: 4px 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  z-index: 50;
+}
+.app-header-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.app-header-title {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+/* ヘッダー下の本体（サイドバー＋地図の横並び） */
+.app-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
 }
 
 .sidebar {
