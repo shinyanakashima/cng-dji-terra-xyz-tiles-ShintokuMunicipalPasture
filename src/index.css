@@ -29,6 +29,11 @@ html, body, #root {
   align-items: center;
   gap: 12px;
 }
+.app-header-logo {
+  height: 32px;
+  width: auto;
+  display: block;
+}
 .app-header-title {
   font-size: 18px;
   font-weight: 700;

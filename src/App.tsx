@@ -15,6 +15,11 @@ export default function App() {
     <div className="app">
       <header className="app-header">
         <div className="app-header-brand">
+          <img
+            className="app-header-logo"
+            src={`${import.meta.env.BASE_URL}logo.png`}
+            alt="株式会社ズコーシャ"
+          />
           <span className="app-header-title">新得町営牧場</span>
         </div>
         <nav className="app-header-nav" />
