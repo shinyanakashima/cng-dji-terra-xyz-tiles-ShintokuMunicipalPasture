@@ -12,11 +12,15 @@ const TILES_BASE = import.meta.env.VITE_TILES_BASE_URL ?? '/tiles'
 interface Props {
   baseMap: BaseMap
   showTrueColor: boolean
+  showOutline: boolean
   activeIndex: VegetationIndex | null
   opacity: number
 }
 
-export default function Map({ baseMap, showTrueColor, activeIndex, opacity }: Props) {
+// 圃場輪郭 GeoJSON（segment.tif から生成, public/ に配置）
+const OUTLINE_URL = `${import.meta.env.BASE_URL}field-outline.geojson`
+
+export default function Map({ baseMap, showTrueColor, showOutline, activeIndex, opacity }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
   const readyRef = useRef(false)
@@ -66,6 +70,8 @@ export default function Map({ baseMap, showTrueColor, activeIndex, opacity }: Pr
               },
             ]),
           ),
+          // 圃場輪郭
+          'field-outline': { type: 'geojson', data: OUTLINE_URL },
         },
         // 重ね順（下→上）: 背景 → トゥルーカラー → 植生指数
         layers: [
@@ -84,6 +90,14 @@ export default function Map({ baseMap, showTrueColor, activeIndex, opacity }: Pr
             layout: { visibility: idx === activeIndex ? ('visible' as const) : ('none' as const) },
             paint: { 'raster-opacity': opacity },
           })),
+          // 最前面: 圃場輪郭
+          {
+            id: 'lyr-field-outline',
+            type: 'line' as const,
+            source: 'field-outline',
+            layout: { visibility: showOutline ? ('visible' as const) : ('none' as const) },
+            paint: { 'line-color': '#ffd21e', 'line-width': 2.5, 'line-opacity': 0.95 },
+          },
         ],
       },
       center: MAP_CENTER,
@@ -118,6 +132,13 @@ export default function Map({ baseMap, showTrueColor, activeIndex, opacity }: Pr
     if (!map || !readyRef.current) return
     map.setLayoutProperty(`lyr-${TRUECOLOR_ID}`, 'visibility', showTrueColor ? 'visible' : 'none')
   }, [showTrueColor])
+
+  // 圃場輪郭の ON/OFF
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || !readyRef.current) return
+    map.setLayoutProperty('lyr-field-outline', 'visibility', showOutline ? 'visible' : 'none')
+  }, [showOutline])
 
   // 植生指数の排他切り替え
   useEffect(() => {

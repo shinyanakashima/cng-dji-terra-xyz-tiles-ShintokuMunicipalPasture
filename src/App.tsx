@@ -6,6 +6,7 @@ import type { VegetationIndex, BaseMap } from './constants'
 export default function App() {
   const [baseMap, setBaseMap] = useState<BaseMap>('satellite')
   const [showTrueColor, setShowTrueColor] = useState(true)
+  const [showOutline, setShowOutline] = useState(true)
   const [activeIndex, setActiveIndex] = useState<VegetationIndex | null>('NDVI')
   const [opacity, setOpacity] = useState(0.8)
 
@@ -14,16 +15,19 @@ export default function App() {
       <LayerControl
         baseMap={baseMap}
         showTrueColor={showTrueColor}
+        showOutline={showOutline}
         activeIndex={activeIndex}
         opacity={opacity}
         onBaseMapChange={setBaseMap}
         onTrueColorChange={setShowTrueColor}
+        onOutlineChange={setShowOutline}
         onIndexChange={setActiveIndex}
         onOpacityChange={setOpacity}
       />
       <Map
         baseMap={baseMap}
         showTrueColor={showTrueColor}
+        showOutline={showOutline}
         activeIndex={activeIndex}
         opacity={opacity}
       />

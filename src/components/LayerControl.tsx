@@ -4,10 +4,12 @@ import type { VegetationIndex, BaseMap } from '../constants'
 interface Props {
   baseMap: BaseMap
   showTrueColor: boolean
+  showOutline: boolean
   activeIndex: VegetationIndex | null
   opacity: number
   onBaseMapChange: (b: BaseMap) => void
   onTrueColorChange: (v: boolean) => void
+  onOutlineChange: (v: boolean) => void
   onIndexChange: (idx: VegetationIndex | null) => void
   onOpacityChange: (v: number) => void
 }
@@ -15,10 +17,12 @@ interface Props {
 export default function LayerControl({
   baseMap,
   showTrueColor,
+  showOutline,
   activeIndex,
   opacity,
   onBaseMapChange,
   onTrueColorChange,
+  onOutlineChange,
   onIndexChange,
   onOpacityChange,
 }: Props) {
@@ -48,6 +52,14 @@ export default function LayerControl({
             onChange={(e) => onTrueColorChange(e.target.checked)}
           />
           <span>トゥルーカラー（ドローン空撮）</span>
+        </label>
+        <label className="toggle-row">
+          <input
+            type="checkbox"
+            checked={showOutline}
+            onChange={(e) => onOutlineChange(e.target.checked)}
+          />
+          <span>圃場輪郭</span>
         </label>
       </div>
 
