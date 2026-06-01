@@ -13,14 +13,15 @@ interface Props {
   baseMap: BaseMap
   showTrueColor: boolean
   showOutline: boolean
-  activeIndex: VegetationIndex | null
+  showIndex: boolean
+  activeIndex: VegetationIndex
   opacity: number
 }
 
 // 圃場輪郭 GeoJSON（segment.tif から生成, public/ に配置）
 const OUTLINE_URL = `${import.meta.env.BASE_URL}field-outline.geojson`
 
-export default function Map({ baseMap, showTrueColor, showOutline, activeIndex, opacity }: Props) {
+export default function Map({ baseMap, showTrueColor, showOutline, showIndex, activeIndex, opacity }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
   const readyRef = useRef(false)
@@ -87,7 +88,7 @@ export default function Map({ baseMap, showTrueColor, showOutline, activeIndex, 
             id: `lyr-${idx}`,
             type: 'raster' as const,
             source: `src-${idx}`,
-            layout: { visibility: idx === activeIndex ? ('visible' as const) : ('none' as const) },
+            layout: { visibility: showIndex && idx === activeIndex ? ('visible' as const) : ('none' as const) },
             paint: { 'raster-opacity': opacity },
           })),
           // 最前面: 圃場輪郭
@@ -102,6 +103,7 @@ export default function Map({ baseMap, showTrueColor, showOutline, activeIndex, 
       },
       center: MAP_CENTER,
       zoom: MAP_ZOOM,
+      maxZoom: 24, // 既定22 → z23タイルへ到達＋少し拡大(オーバーズーム)で詳細確認
     })
 
     map.addControl(new maplibregl.NavigationControl(), 'top-right')
@@ -140,19 +142,19 @@ export default function Map({ baseMap, showTrueColor, showOutline, activeIndex, 
     map.setLayoutProperty('lyr-field-outline', 'visibility', showOutline ? 'visible' : 'none')
   }, [showOutline])
 
-  // 植生指数の排他切り替え
+  // 植生指数の表示ON/OFF＋排他切り替え
   useEffect(() => {
     const map = mapRef.current
     if (!map || !readyRef.current) return
     INDICES.forEach((idx) => {
-      map.setLayoutProperty(`lyr-${idx}`, 'visibility', idx === activeIndex ? 'visible' : 'none')
+      map.setLayoutProperty(`lyr-${idx}`, 'visibility', showIndex && idx === activeIndex ? 'visible' : 'none')
     })
-  }, [activeIndex])
+  }, [activeIndex, showIndex])
 
   // 植生指数の透過度
   useEffect(() => {
     const map = mapRef.current
-    if (!map || !readyRef.current || !activeIndex) return
+    if (!map || !readyRef.current) return
     map.setPaintProperty(`lyr-${activeIndex}`, 'raster-opacity', opacity)
   }, [activeIndex, opacity])
 

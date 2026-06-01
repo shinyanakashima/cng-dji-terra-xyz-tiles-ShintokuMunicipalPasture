@@ -60,6 +60,8 @@ html, body, #root {
   transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
 .index-btn:hover { background: #252550; border-color: #4a4a80; color: #fff; }
+.index-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.index-btn:disabled:hover { background: transparent; border-color: #2e2e50; color: #ccc; }
 .index-btn.active { background: #1b5c8a; border-color: #3a9bd5; color: #fff; }
 
 .index-btn-name { font-weight: 600; }

@@ -5,12 +5,14 @@ interface Props {
   baseMap: BaseMap
   showTrueColor: boolean
   showOutline: boolean
-  activeIndex: VegetationIndex | null
+  showIndex: boolean
+  activeIndex: VegetationIndex
   opacity: number
   onBaseMapChange: (b: BaseMap) => void
   onTrueColorChange: (v: boolean) => void
   onOutlineChange: (v: boolean) => void
-  onIndexChange: (idx: VegetationIndex | null) => void
+  onIndexShowChange: (v: boolean) => void
+  onIndexChange: (idx: VegetationIndex) => void
   onOpacityChange: (v: number) => void
 }
 
@@ -18,11 +20,13 @@ export default function LayerControl({
   baseMap,
   showTrueColor,
   showOutline,
+  showIndex,
   activeIndex,
   opacity,
   onBaseMapChange,
   onTrueColorChange,
   onOutlineChange,
+  onIndexShowChange,
   onIndexChange,
   onOpacityChange,
 }: Props) {
@@ -65,12 +69,20 @@ export default function LayerControl({
 
       <div className="sidebar-section">
         <h2>植生指数</h2>
+        <label className="toggle-row">
+          <input
+            type="checkbox"
+            checked={showIndex}
+            onChange={(e) => onIndexShowChange(e.target.checked)}
+          />
+          <span>植生指数を表示</span>
+        </label>
         {INDICES.map((idx) => (
           <button
             key={idx}
-            className={`index-btn${activeIndex === idx ? ' active' : ''}`}
-            // クリックで選択／もう一度押すと非表示（null）
-            onClick={() => onIndexChange(activeIndex === idx ? null : idx)}
+            className={`index-btn${showIndex && activeIndex === idx ? ' active' : ''}`}
+            disabled={!showIndex}
+            onClick={() => onIndexChange(idx)}
           >
             <div className="index-btn-name">{INDEX_META[idx].label}</div>
             <div className="index-btn-desc">{INDEX_META[idx].desc}</div>
@@ -88,7 +100,7 @@ export default function LayerControl({
               max={1}
               step={0.05}
               value={opacity}
-              disabled={!activeIndex}
+              disabled={!showIndex}
               onChange={(e) => onOpacityChange(Number(e.target.value))}
             />
             <span className="opacity-value">{Math.round(opacity * 100)}%</span>
