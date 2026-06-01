@@ -12,3 +12,13 @@ export const INDEX_META: Record<VegetationIndex, { label: string; desc: string }
 // 新得町営牧場 圃場D2 TFW上端左 [142.8488°E, 43.1705°N] より算出
 export const MAP_CENTER: [number, number] = [142.857, 43.170]
 export const MAP_ZOOM = 16
+
+// 背景地図
+export type BaseMap = 'satellite' | 'map'
+export const BASE_MAPS: { id: BaseMap; label: string }[] = [
+  { id: 'satellite', label: '衛星画像（地理院）' },
+  { id: 'map', label: '地図（OSM）' },
+]
+
+// ドローン オルソ（トゥルーカラー）タイル。R2 の truecolor/ プレフィックスに配置。
+export const TRUECOLOR_ID = 'truecolor'

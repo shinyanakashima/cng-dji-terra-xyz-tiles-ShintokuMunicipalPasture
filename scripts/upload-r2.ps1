@@ -35,6 +35,7 @@ param(
   [string]$AccountId = $env:R2_ACCOUNT_ID,
   [string]$Source    = (Join-Path $PSScriptRoot "..\..\map\index_map_color"),
   [switch]$Init,
+  [switch]$TrueColor,   # 指定時: ../../map の {z} タイル(ドローンのオルソ)を truecolor/ へアップ
   [switch]$DryRun
 )
 
@@ -45,6 +46,13 @@ if (-not $AccountId)                 { throw "環境変数 R2_ACCOUNT_ID が未�
 if (-not $env:AWS_ACCESS_KEY_ID)     { throw "環境変数 AWS_ACCESS_KEY_ID が未設定です。" }
 if (-not $env:AWS_SECRET_ACCESS_KEY) { throw "環境変数 AWS_SECRET_ACCESS_KEY が未設定です。" }
 
+# TrueColor モードでは ../../map の {z} タイル群を対象にする
+if ($TrueColor) {
+  $Source = (Join-Path $PSScriptRoot "..\..\map")
+  $DestPrefix = "truecolor/"
+} else {
+  $DestPrefix = ""
+}
 $Source = (Resolve-Path $Source).Path
 if (-not (Test-Path $Source)) { throw "Source が見つかりません: $Source" }
 
@@ -79,13 +87,17 @@ if ($Init) {
 }
 
 $syncArgs = @(
-  "s3", "sync", $Source, "s3://$Bucket/",
+  "s3", "sync", $Source, "s3://$Bucket/$DestPrefix",
   "--endpoint-url", $endpoint,
-  "--exclude", "*.tif",
-  "--exclude", "*.tfw",
-  "--exclude", "*.aux.xml",
   "--cache-control", "public, max-age=31536000, immutable"
 )
+if ($TrueColor) {
+  # map/ 直下の {z=12..23} タイルだけを対象（index_map* / report / *.tif 等は除外）
+  $syncArgs += @("--exclude", "*")
+  12..23 | ForEach-Object { $syncArgs += @("--include", "$_/*") }
+} else {
+  $syncArgs += @("--exclude", "*.tif", "--exclude", "*.tfw", "--exclude", "*.aux.xml")
+}
 if ($DryRun) { $syncArgs += "--dryrun" }
 
 if ($DryRun) {
@@ -98,4 +110,5 @@ if ($LASTEXITCODE -ne 0) { throw "aws s3 sync が失敗しました (exit $LASTE
 
 Write-Host ""
 Write-Host "完了。アップロード確認:" -ForegroundColor Green
-& aws s3 ls "s3://$Bucket/NDVI/17/" --endpoint-url $endpoint | Select-Object -First 5
+$checkPrefix = if ($TrueColor) { "truecolor/17/" } else { "NDVI/17/" }
+& aws s3 ls "s3://$Bucket/$checkPrefix" --endpoint-url $endpoint | Select-Object -First 5

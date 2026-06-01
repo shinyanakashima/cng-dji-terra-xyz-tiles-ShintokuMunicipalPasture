@@ -10,13 +10,18 @@ import type { Plugin } from 'vite'
  * タイルのコピー・シンボリックリンクが不要になる。
  */
 function localTilePlugin(): Plugin {
-  const tileRoot = path.resolve(__dirname, '../map/index_map_color')
+  const indexRoot = path.resolve(__dirname, '../map/index_map_color')
+  const mapRoot = path.resolve(__dirname, '../map') // トゥルーカラー(オルソ) = ../map/{z}/{x}/{y}.png
   return {
     name: 'local-tile-server',
     apply: 'serve',
     configureServer(server) {
       server.middlewares.use('/tiles', (req, res, next) => {
-        const filePath = path.join(tileRoot, req.url ?? '')
+        const url = req.url ?? ''
+        // /truecolor/{z}/... は ../map/{z}/... 、それ以外は ../map/index_map_color/{INDEX}/...
+        const filePath = url.startsWith('/truecolor/')
+          ? path.join(mapRoot, url.slice('/truecolor'.length))
+          : path.join(indexRoot, url)
         try {
           const stat = fs.statSync(filePath)
           if (stat.isFile()) {

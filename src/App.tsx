@@ -1,21 +1,32 @@
 import { useState } from 'react'
 import Map from './components/Map'
 import LayerControl from './components/LayerControl'
-import type { VegetationIndex } from './constants'
+import type { VegetationIndex, BaseMap } from './constants'
 
 export default function App() {
-  const [activeIndex, setActiveIndex] = useState<VegetationIndex>('NDVI')
+  const [baseMap, setBaseMap] = useState<BaseMap>('satellite')
+  const [showTrueColor, setShowTrueColor] = useState(true)
+  const [activeIndex, setActiveIndex] = useState<VegetationIndex | null>('NDVI')
   const [opacity, setOpacity] = useState(0.8)
 
   return (
     <div className="app">
       <LayerControl
+        baseMap={baseMap}
+        showTrueColor={showTrueColor}
         activeIndex={activeIndex}
         opacity={opacity}
+        onBaseMapChange={setBaseMap}
+        onTrueColorChange={setShowTrueColor}
         onIndexChange={setActiveIndex}
         onOpacityChange={setOpacity}
       />
-      <Map activeIndex={activeIndex} opacity={opacity} />
+      <Map
+        baseMap={baseMap}
+        showTrueColor={showTrueColor}
+        activeIndex={activeIndex}
+        opacity={opacity}
+      />
     </div>
   )
 }
