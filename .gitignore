@@ -23,5 +23,8 @@ Thumbs.db
 # Claude Code のローカル設定（絶対パス等を含むため公開しない）
 .claude/
 
+# 個人作業メモ（公開しない）
+NEXT_STEPS.md
+
 # タイル実体（外部=../map か R2 にあるためリポジトリには入れない）
 public/tiles/
