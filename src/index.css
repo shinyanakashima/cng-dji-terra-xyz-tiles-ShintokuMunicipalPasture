@@ -1,0 +1,90 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body, #root {
+  height: 100%;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+}
+
+.app {
+  display: flex;
+  height: 100%;
+}
+
+.sidebar {
+  width: 224px;
+  flex-shrink: 0;
+  background: #1a1a2e;
+  color: #e8e8f0;
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  z-index: 1;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.4);
+}
+
+.sidebar-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #7eb8f7;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #2a2a4e;
+}
+
+.sidebar-section h2 {
+  font-size: 10px;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+}
+
+.index-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  margin-bottom: 4px;
+  border: 1px solid #2e2e50;
+  border-radius: 5px;
+  background: transparent;
+  color: #ccc;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1.4;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.index-btn:hover { background: #252550; border-color: #4a4a80; color: #fff; }
+.index-btn.active { background: #1b5c8a; border-color: #3a9bd5; color: #fff; }
+
+.index-btn-name { font-weight: 600; }
+.index-btn-desc { font-size: 10px; color: #888; margin-top: 2px; }
+.index-btn.active .index-btn-desc { color: #a8d4f0; }
+
+.opacity-control {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.opacity-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.opacity-row input[type=range] {
+  flex: 1;
+  accent-color: #3a9bd5;
+}
+.opacity-value {
+  font-size: 11px;
+  color: #aaa;
+  min-width: 32px;
+  text-align: right;
+}
+
+.map-container { flex: 1; }

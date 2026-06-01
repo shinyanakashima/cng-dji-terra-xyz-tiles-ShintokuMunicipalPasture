@@ -1,0 +1,27 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+
+# vite cache
+node_modules/.vite/
+
+# env (ローカル秘密。.env.production は公開URLのみなのでコミット可)
+.env
+.env.local
+.env.*.local
+
+# R2 認証情報を絶対にコミットしない
+.r2-credentials
+*.secret
+
+# OS / editor
+.DS_Store
+Thumbs.db
+
+# Claude Code のローカル設定（絶対パス等を含むため公開しない）
+.claude/
+
+# タイル実体（外部=../map か R2 にあるためリポジトリには入れない）
+public/tiles/
