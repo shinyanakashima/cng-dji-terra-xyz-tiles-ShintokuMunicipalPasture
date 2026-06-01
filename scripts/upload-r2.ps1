@@ -41,6 +41,35 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+# --- プロジェクト専用の認証ファイルを自動読込 ---
+# scripts/.r2-credentials (gitignore 済み・コミットされない) に KEY=VALUE 形式で
+# R2_ACCOUNT_ID / AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY を書いておけば自動で読む。
+# 既に環境変数がセットされていればそちらを優先する。
+$credFile = Join-Path $PSScriptRoot ".r2-credentials"
+if (Test-Path $credFile) {
+  Write-Host "認証ファイルを読込: $credFile" -ForegroundColor DarkGray
+  Get-Content $credFile | ForEach-Object {
+    $line = $_.Trim()
+    if ($line -and -not $line.StartsWith("#")) {
+      $kv = $line -split "=", 2
+      if ($kv.Count -eq 2) {
+        $name = $kv[0].Trim()
+        $val  = ($kv[1].Trim() -replace '^["'']|["'']$', '')
+        if ($name -and -not (Test-Path "env:$name")) {
+          Set-Item -Path "env:$name" -Value $val
+        }
+      }
+    }
+  }
+  # param の既定値はファイル読込前に評価済みのため、ここで再取得する
+  if (-not $AccountId) { $AccountId = $env:R2_ACCOUNT_ID }
+}
+
+# プレースホルダのまま実行されるのを防ぐ
+if ($env:AWS_ACCESS_KEY_ID -like "PASTE_*" -or $env:AWS_SECRET_ACCESS_KEY -like "PASTE_*") {
+  throw "scripts\.r2-credentials がプレースホルダのままです。実際の R2 Access Key / Secret に書き換えてください。"
+}
+
 # --- 認証情報チェック ---
 if (-not $AccountId)                 { throw "環境変数 R2_ACCOUNT_ID が未設定です。" }
 if (-not $env:AWS_ACCESS_KEY_ID)     { throw "環境変数 AWS_ACCESS_KEY_ID が未設定です。" }
