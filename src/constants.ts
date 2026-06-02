@@ -10,7 +10,8 @@ export const INDEX_META: Record<VegetationIndex, { label: string; desc: string }
 }
 
 // 新得町営牧場 圃場D2 TFW上端左 [142.8488°E, 43.1705°N] より算出
-export const MAP_CENTER: [number, number] = [142.857, 43.170]
+// 初期表示は中心からやや左下(西・南)へずらす
+export const MAP_CENTER: [number, number] = [142.855, 43.1685]
 export const MAP_ZOOM = 16
 
 // 背景地図
