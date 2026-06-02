@@ -1,13 +1,16 @@
-import { INDICES, INDEX_META, BASE_MAPS } from '../constants'
-import type { VegetationIndex, BaseMap } from '../constants'
+import { INDEX_META, BASE_MAPS } from '../constants'
+import type { VegetationIndex, BaseMap, FieldDef } from '../constants'
 
 interface Props {
+  fields: FieldDef[]
+  activeFieldId: string
   baseMap: BaseMap
   showTrueColor: boolean
   showOutline: boolean
   showIndex: boolean
   activeIndex: VegetationIndex
   opacity: number
+  onFieldChange: (id: string) => void
   onBaseMapChange: (b: BaseMap) => void
   onTrueColorChange: (v: boolean) => void
   onOutlineChange: (v: boolean) => void
@@ -17,12 +20,15 @@ interface Props {
 }
 
 export default function LayerControl({
+  fields,
+  activeFieldId,
   baseMap,
   showTrueColor,
   showOutline,
   showIndex,
   activeIndex,
   opacity,
+  onFieldChange,
   onBaseMapChange,
   onTrueColorChange,
   onOutlineChange,
@@ -30,9 +36,23 @@ export default function LayerControl({
   onIndexChange,
   onOpacityChange,
 }: Props) {
+  const activeField = fields.find((f) => f.id === activeFieldId) ?? fields[0]
   return (
     <aside className="sidebar">
       <p className="sidebar-title">植生指数ビューア</p>
+
+      <div className="sidebar-section">
+        <h2>圃場</h2>
+        {fields.map((f) => (
+          <button
+            key={f.id}
+            className={`index-btn${activeFieldId === f.id ? ' active' : ''}`}
+            onClick={() => onFieldChange(f.id)}
+          >
+            <div className="index-btn-name">{f.label}</div>
+          </button>
+        ))}
+      </div>
 
       <div className="sidebar-section">
         <h2>背景</h2>
@@ -77,7 +97,7 @@ export default function LayerControl({
           />
           <span>植生指数を表示</span>
         </label>
-        {INDICES.map((idx) => (
+        {activeField.indices.map((idx) => (
           <button
             key={idx}
             className={`index-btn${showIndex && activeIndex === idx ? ' active' : ''}`}

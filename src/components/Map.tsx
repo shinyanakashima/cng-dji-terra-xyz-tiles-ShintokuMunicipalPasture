@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import { INDICES, MAP_CENTER, MAP_ZOOM, TRUECOLOR_ID } from '../constants'
-import type { VegetationIndex, BaseMap } from '../constants'
+import { TRUECOLOR_ID } from '../constants'
+import type { VegetationIndex, BaseMap, FieldDef } from '../constants'
 
 // XYZ タイルのベースURL。
 // 開発: /tiles（vite.config.ts のプラグインが ../map/index_map_color を配信）
@@ -10,6 +10,7 @@ import type { VegetationIndex, BaseMap } from '../constants'
 const TILES_BASE = import.meta.env.VITE_TILES_BASE_URL ?? '/tiles'
 
 interface Props {
+  field: FieldDef
   baseMap: BaseMap
   showTrueColor: boolean
   showOutline: boolean
@@ -18,10 +19,11 @@ interface Props {
   opacity: number
 }
 
-// 圃場輪郭 GeoJSON（segment.tif から生成, public/ に配置）
-const OUTLINE_URL = `${import.meta.env.BASE_URL}field-outline.geojson`
-
-export default function Map({ baseMap, showTrueColor, showOutline, showIndex, activeIndex, opacity }: Props) {
+export default function Map({ field, baseMap, showTrueColor, showOutline, showIndex, activeIndex, opacity }: Props) {
+  // この圃場のタイル/輪郭URL（App 側で key={field.id} により圃場切替時は再マウントされる）
+  const indices = field.indices
+  const tileUrl = (name: string) => `${TILES_BASE}/${field.tilePrefix}${name}/{z}/{x}/{y}.png`
+  const outlineUrl = `${import.meta.env.BASE_URL}${field.outline}`
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
   // ロード完了を state にして、各同期 useEffect がロード後に確実に再実行されるようにする
@@ -54,18 +56,18 @@ export default function Map({ baseMap, showTrueColor, showOutline, showIndex, ac
           // ドローン オルソ（トゥルーカラー）
           [`src-${TRUECOLOR_ID}`]: {
             type: 'raster',
-            tiles: [`${TILES_BASE}/${TRUECOLOR_ID}/{z}/{x}/{y}.png`],
+            tiles: [tileUrl(TRUECOLOR_ID)],
             tileSize: 256,
             minzoom: 12,
             maxzoom: 23,
           },
-          // 植生指数 5 種
+          // 植生指数（この圃場が持つ指数のみ）
           ...Object.fromEntries(
-            INDICES.map((idx) => [
+            indices.map((idx) => [
               `src-${idx}`,
               {
                 type: 'raster',
-                tiles: [`${TILES_BASE}/${idx}/{z}/{x}/{y}.png`],
+                tiles: [tileUrl(idx)],
                 tileSize: 256,
                 minzoom: 12,
                 maxzoom: 23,
@@ -73,7 +75,7 @@ export default function Map({ baseMap, showTrueColor, showOutline, showIndex, ac
             ]),
           ),
           // 圃場輪郭
-          'field-outline': { type: 'geojson', data: OUTLINE_URL },
+          'field-outline': { type: 'geojson', data: outlineUrl },
         },
         // 重ね順（下→上）: 背景 → トゥルーカラー → 植生指数
         layers: [
@@ -85,7 +87,7 @@ export default function Map({ baseMap, showTrueColor, showOutline, showIndex, ac
             source: `src-${TRUECOLOR_ID}`,
             layout: { visibility: showTrueColor ? 'visible' : 'none' },
           },
-          ...INDICES.map((idx) => ({
+          ...indices.map((idx) => ({
             id: `lyr-${idx}`,
             type: 'raster' as const,
             source: `src-${idx}`,
@@ -102,8 +104,8 @@ export default function Map({ baseMap, showTrueColor, showOutline, showIndex, ac
           },
         ],
       },
-      center: MAP_CENTER,
-      zoom: MAP_ZOOM,
+      center: field.center,
+      zoom: field.zoom,
       maxZoom: 24, // 既定22 → z23タイルへ到達＋少し拡大(オーバーズーム)で詳細確認
     })
 
@@ -148,15 +150,17 @@ export default function Map({ baseMap, showTrueColor, showOutline, showIndex, ac
   useEffect(() => {
     const map = mapRef.current
     if (!map || !ready) return
-    INDICES.forEach((idx) => {
+    indices.forEach((idx) => {
+      if (!map.getLayer(`lyr-${idx}`)) return
       map.setLayoutProperty(`lyr-${idx}`, 'visibility', showIndex && idx === activeIndex ? 'visible' : 'none')
     })
-  }, [activeIndex, showIndex, ready])
+  }, [indices, activeIndex, showIndex, ready])
 
   // 植生指数の透過度
   useEffect(() => {
     const map = mapRef.current
     if (!map || !ready) return
+    if (!map.getLayer(`lyr-${activeIndex}`)) return
     map.setPaintProperty(`lyr-${activeIndex}`, 'raster-opacity', opacity)
   }, [activeIndex, opacity, ready])
 
