@@ -35,9 +35,20 @@ html, body, #root {
   display: block;
 }
 .app-header-title {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  line-height: 1.6;
+}
+.app-header-product {
   font-size: 18px;
   font-weight: 700;
-  line-height: 1.6;
+  letter-spacing: 0.02em;
+}
+.app-header-for {
+  font-size: 13px;
+  font-weight: 400;
+  color: #cbd5e1; /* ダークバー上で少し控えめ */
 }
 
 /* ヘッダー下の本体（サイドバー＋地図の横並び） */
