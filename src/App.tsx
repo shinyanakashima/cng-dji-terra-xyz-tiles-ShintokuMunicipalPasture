@@ -11,9 +11,13 @@ export default function App() {
   const [showOutline, setShowOutline] = useState(true)
   const [showIndex, setShowIndex] = useState(true)
   const [activeIndex, setActiveIndex] = useState<VegetationIndex>('NDVI')
-  const [opacity, setOpacity] = useState(0.8)
+  // 透過度は植生指数ごとに個別に保持する（指数を切り替えると各自の値が復元される）
+  const [opacityByIndex, setOpacityByIndex] = useState<Record<string, number>>({})
 
   const field = FIELDS.find((f) => f.id === activeFieldId) ?? FIELDS[0]
+  const opacity = opacityByIndex[activeIndex] ?? 0.8
+  const handleOpacityChange = (v: number) =>
+    setOpacityByIndex((prev) => ({ ...prev, [activeIndex]: v }))
 
   // 圃場切替: 新しい圃場が現在の指数を持たなければ先頭の指数に切り替える
   const handleFieldChange = (id: string) => {
@@ -56,7 +60,7 @@ export default function App() {
           onOutlineChange={setShowOutline}
           onIndexShowChange={setShowIndex}
           onIndexChange={setActiveIndex}
-          onOpacityChange={setOpacity}
+          onOpacityChange={handleOpacityChange}
         />
         <Map
           key={field.id}
