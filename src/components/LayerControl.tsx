@@ -39,7 +39,7 @@ export default function LayerControl({
   const activeField = fields.find((f) => f.id === activeFieldId) ?? fields[0]
   return (
     <aside className="sidebar">
-      <p className="sidebar-title">植生指数ビューア</p>
+      <p className="sidebar-title">Mimori v0.2.0</p>
 
       <div className="sidebar-section">
         <h2>圃場</h2>
