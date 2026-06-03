@@ -9,24 +9,16 @@ export default function App() {
   const [baseMap, setBaseMap] = useState<BaseMap>('satellite')
   const [showTrueColor, setShowTrueColor] = useState(true)
   const [showOutline, setShowOutline] = useState(true)
-  const [showIndex, setShowIndex] = useState(true)
-  const [activeIndex, setActiveIndex] = useState<VegetationIndex>('NDVI')
-  // 透過度は植生指数ごとに個別に保持する（指数を切り替えると各自の値が復元される）
+  // 植生指数は複数同時表示可。指数ごとに表示ON/OFFと透過度を個別に保持する。
+  const [visibleIndices, setVisibleIndices] = useState<Record<string, boolean>>({ NDVI: true })
   const [opacityByIndex, setOpacityByIndex] = useState<Record<string, number>>({})
 
   const field = FIELDS.find((f) => f.id === activeFieldId) ?? FIELDS[0]
-  const opacity = opacityByIndex[activeIndex] ?? 0.8
-  const handleOpacityChange = (v: number) =>
-    setOpacityByIndex((prev) => ({ ...prev, [activeIndex]: v }))
 
-  // 圃場切替: 新しい圃場が現在の指数を持たなければ先頭の指数に切り替える
-  const handleFieldChange = (id: string) => {
-    const next = FIELDS.find((f) => f.id === id)
-    if (next && !next.indices.includes(activeIndex)) {
-      setActiveIndex(next.indices[0])
-    }
-    setActiveFieldId(id)
-  }
+  const handleIndexToggle = (idx: VegetationIndex, v: boolean) =>
+    setVisibleIndices((prev) => ({ ...prev, [idx]: v }))
+  const handleIndexOpacityChange = (idx: VegetationIndex, v: number) =>
+    setOpacityByIndex((prev) => ({ ...prev, [idx]: v }))
 
   return (
     <div className="app">
@@ -51,16 +43,14 @@ export default function App() {
           baseMap={baseMap}
           showTrueColor={showTrueColor}
           showOutline={showOutline}
-          showIndex={showIndex}
-          activeIndex={activeIndex}
-          opacity={opacity}
-          onFieldChange={handleFieldChange}
+          visibleIndices={visibleIndices}
+          opacityByIndex={opacityByIndex}
+          onFieldChange={setActiveFieldId}
           onBaseMapChange={setBaseMap}
           onTrueColorChange={setShowTrueColor}
           onOutlineChange={setShowOutline}
-          onIndexShowChange={setShowIndex}
-          onIndexChange={setActiveIndex}
-          onOpacityChange={handleOpacityChange}
+          onIndexToggle={handleIndexToggle}
+          onIndexOpacityChange={handleIndexOpacityChange}
         />
         <Map
           key={field.id}
@@ -68,9 +58,8 @@ export default function App() {
           baseMap={baseMap}
           showTrueColor={showTrueColor}
           showOutline={showOutline}
-          showIndex={showIndex}
-          activeIndex={activeIndex}
-          opacity={opacity}
+          visibleIndices={visibleIndices}
+          opacityByIndex={opacityByIndex}
         />
       </div>
     </div>

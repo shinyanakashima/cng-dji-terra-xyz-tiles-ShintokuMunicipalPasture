@@ -7,16 +7,14 @@ interface Props {
   baseMap: BaseMap
   showTrueColor: boolean
   showOutline: boolean
-  showIndex: boolean
-  activeIndex: VegetationIndex
-  opacity: number
+  visibleIndices: Record<string, boolean>
+  opacityByIndex: Record<string, number>
   onFieldChange: (id: string) => void
   onBaseMapChange: (b: BaseMap) => void
   onTrueColorChange: (v: boolean) => void
   onOutlineChange: (v: boolean) => void
-  onIndexShowChange: (v: boolean) => void
-  onIndexChange: (idx: VegetationIndex) => void
-  onOpacityChange: (v: number) => void
+  onIndexToggle: (idx: VegetationIndex, v: boolean) => void
+  onIndexOpacityChange: (idx: VegetationIndex, v: number) => void
 }
 
 export default function LayerControl({
@@ -25,16 +23,14 @@ export default function LayerControl({
   baseMap,
   showTrueColor,
   showOutline,
-  showIndex,
-  activeIndex,
-  opacity,
+  visibleIndices,
+  opacityByIndex,
   onFieldChange,
   onBaseMapChange,
   onTrueColorChange,
   onOutlineChange,
-  onIndexShowChange,
-  onIndexChange,
-  onOpacityChange,
+  onIndexToggle,
+  onIndexOpacityChange,
 }: Props) {
   const activeField = fields.find((f) => f.id === activeFieldId) ?? fields[0]
   return (
@@ -89,43 +85,37 @@ export default function LayerControl({
 
       <div className="sidebar-section">
         <h2>植生指数</h2>
-        <label className="toggle-row">
-          <input
-            type="checkbox"
-            checked={showIndex}
-            onChange={(e) => onIndexShowChange(e.target.checked)}
-          />
-          <span>植生指数を表示</span>
-        </label>
-        {activeField.indices.map((idx) => (
-          <button
-            key={idx}
-            className={`index-btn${showIndex && activeIndex === idx ? ' active' : ''}`}
-            disabled={!showIndex}
-            onClick={() => onIndexChange(idx)}
-          >
-            <div className="index-btn-name">{INDEX_META[idx].label}</div>
-            <div className="index-btn-desc">{INDEX_META[idx].desc}</div>
-          </button>
-        ))}
-      </div>
-
-      <div className="sidebar-section">
-        <h2>植生指数の透過度</h2>
-        <div className="opacity-control">
-          <div className="opacity-row">
-            <input
-              type="range"
-              min={0}
-              max={1}
-              step={0.05}
-              value={opacity}
-              disabled={!showIndex}
-              onChange={(e) => onOpacityChange(Number(e.target.value))}
-            />
-            <span className="opacity-value">{Math.round(opacity * 100)}%</span>
-          </div>
-        </div>
+        {activeField.indices.map((idx) => {
+          const on = visibleIndices[idx] ?? false
+          const op = opacityByIndex[idx] ?? 0.8
+          return (
+            <div key={idx} className={`index-item${on ? ' active' : ''}`}>
+              <label className="toggle-row">
+                <input
+                  type="checkbox"
+                  checked={on}
+                  onChange={(e) => onIndexToggle(idx, e.target.checked)}
+                />
+                <span className="index-item-text">
+                  <span className="index-btn-name">{INDEX_META[idx].label}</span>
+                  <span className="index-btn-desc">{INDEX_META[idx].desc}</span>
+                </span>
+              </label>
+              <div className="opacity-row">
+                <input
+                  type="range"
+                  min={0}
+                  max={1}
+                  step={0.05}
+                  value={op}
+                  disabled={!on}
+                  onChange={(e) => onIndexOpacityChange(idx, Number(e.target.value))}
+                />
+                <span className="opacity-value">{Math.round(op * 100)}%</span>
+              </div>
+            </div>
+          )
+        })}
       </div>
     </aside>
   )

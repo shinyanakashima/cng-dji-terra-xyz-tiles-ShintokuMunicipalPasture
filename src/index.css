@@ -114,6 +114,17 @@ html, body, #root {
 .index-btn-desc { font-size: 10px; color: #888; margin-top: 2px; }
 .index-btn.active .index-btn-desc { color: #a8d4f0; }
 
+.index-item {
+  border: 1px solid #2e2e50;
+  border-radius: 5px;
+  padding: 6px 10px 8px;
+  margin-bottom: 6px;
+  transition: background 0.15s, border-color 0.15s;
+}
+.index-item.active { background: #18375080; border-color: #3a9bd5; }
+.index-item .toggle-row { padding: 2px 0; }
+.index-item-text { display: flex; flex-direction: column; }
+
 .opacity-control {
   display: flex;
   flex-direction: column;

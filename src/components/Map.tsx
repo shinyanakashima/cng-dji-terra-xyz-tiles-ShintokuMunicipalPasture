@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { TRUECOLOR_ID } from '../constants'
-import type { VegetationIndex, BaseMap, FieldDef } from '../constants'
+import type { BaseMap, FieldDef } from '../constants'
 
 // XYZ タイルのベースURL。
 // 開発: /tiles（vite.config.ts のプラグインが ../map/index_map_color を配信）
@@ -14,12 +14,11 @@ interface Props {
   baseMap: BaseMap
   showTrueColor: boolean
   showOutline: boolean
-  showIndex: boolean
-  activeIndex: VegetationIndex
-  opacity: number
+  visibleIndices: Record<string, boolean>
+  opacityByIndex: Record<string, number>
 }
 
-export default function Map({ field, baseMap, showTrueColor, showOutline, showIndex, activeIndex, opacity }: Props) {
+export default function Map({ field, baseMap, showTrueColor, showOutline, visibleIndices, opacityByIndex }: Props) {
   // この圃場のタイル/輪郭URL（App 側で key={field.id} により圃場切替時は再マウントされる）
   const indices = field.indices
   const tileUrl = (name: string) => `${TILES_BASE}/${field.tilePrefix}${name}/{z}/{x}/{y}.png`
@@ -91,8 +90,8 @@ export default function Map({ field, baseMap, showTrueColor, showOutline, showIn
             id: `lyr-${idx}`,
             type: 'raster' as const,
             source: `src-${idx}`,
-            layout: { visibility: showIndex && idx === activeIndex ? ('visible' as const) : ('none' as const) },
-            paint: { 'raster-opacity': opacity },
+            layout: { visibility: (visibleIndices[idx] ?? false) ? ('visible' as const) : ('none' as const) },
+            paint: { 'raster-opacity': opacityByIndex[idx] ?? 0.8 },
           })),
           // 最前面: 圃場輪郭
           {
@@ -146,23 +145,25 @@ export default function Map({ field, baseMap, showTrueColor, showOutline, showIn
     map.setLayoutProperty('lyr-field-outline', 'visibility', showOutline ? 'visible' : 'none')
   }, [showOutline, ready])
 
-  // 植生指数の表示ON/OFF＋排他切り替え
+  // 植生指数の表示ON/OFF（指数ごと・複数同時表示可）
   useEffect(() => {
     const map = mapRef.current
     if (!map || !ready) return
     indices.forEach((idx) => {
       if (!map.getLayer(`lyr-${idx}`)) return
-      map.setLayoutProperty(`lyr-${idx}`, 'visibility', showIndex && idx === activeIndex ? 'visible' : 'none')
+      map.setLayoutProperty(`lyr-${idx}`, 'visibility', (visibleIndices[idx] ?? false) ? 'visible' : 'none')
     })
-  }, [indices, activeIndex, showIndex, ready])
+  }, [indices, visibleIndices, ready])
 
-  // 植生指数の透過度
+  // 植生指数の透過度（指数ごと）
   useEffect(() => {
     const map = mapRef.current
     if (!map || !ready) return
-    if (!map.getLayer(`lyr-${activeIndex}`)) return
-    map.setPaintProperty(`lyr-${activeIndex}`, 'raster-opacity', opacity)
-  }, [activeIndex, opacity, ready])
+    indices.forEach((idx) => {
+      if (!map.getLayer(`lyr-${idx}`)) return
+      map.setPaintProperty(`lyr-${idx}`, 'raster-opacity', opacityByIndex[idx] ?? 0.8)
+    })
+  }, [indices, opacityByIndex, ready])
 
   return <div ref={containerRef} className="map-container" />
 }
