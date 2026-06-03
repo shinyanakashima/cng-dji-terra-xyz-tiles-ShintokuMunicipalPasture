@@ -84,7 +84,17 @@ npm run build
 - タイル範囲を z=14〜19 に絞って軽量化（README.md に GDAL コマンド記載済み）
 - カラーバー（凡例）コンポーネントの追加
 - 地点クリックで座標表示
-- 複数指数を比較表示（MapLibre Compare プラグイン）
+- ~~複数指数を比較表示（MapLibre Compare プラグイン）~~ → 実装済み（`#/compare`）
+
+## 画面構成（2ページ・HashRouter）
+
+react-router-dom の HashRouter で 2 ページに分岐（Cloudflare Pages/R2 でリライト設定不要）。
+
+- `#/`（通常表示）: 植生指数を**複数同時にチェックボックスで重ね表示**、指数ごとに透過度スライダー。
+- `#/compare`（左右比較）: `@maplibre/maplibre-gl-compare` で 2 地図をスワイプ比較。左右（または上下）に
+  「オルソ / 各植生指数」を 1 つずつ選んで見比べる。
+
+ヘッダー右のナビ（通常表示 / 左右比較）で切替。圃場・背景・輪郭の選択はページ間で保持（App が保持）。
 
 ## ファイル構成
 
@@ -93,13 +103,28 @@ cng-dji-terra-xyz-tiles-ShintokuMunicipalPasture/
 ├── CLAUDE.md              ← このファイル
 ├── README.md              ← ユーザー向け手順書
 ├── .env.example           ← 環境変数テンプレート
-├── vite.config.ts         ← 開発用タイルサーバープラグイン込み
+├── vite.config.ts         ← 開発用タイルサーバープラグイン込み（未存在タイルは404を返す）
 ├── src/
-│   ├── constants.ts       ← 指数定義・マップ中心座標
-│   ├── App.tsx            ← レイアウト（サイドバー + マップ）
-│   └── components/
-│       ├── Map.tsx        ← MapLibre 初期化・レイヤー管理
-│       └── LayerControl.tsx ← 指数切り替え・透過度UI
+│   ├── constants.ts       ← 指数定義・圃場定義（FIELDS）・マップ中心座標
+│   ├── App.tsx            ← HashRouter + 共通状態（圃場/背景/輪郭/オルソ）
+│   ├── lib/
+│   │   ├── mapStyle.ts    ← MapLibre スタイル(ソース＋レイヤー)生成・タイルURL（通常/比較で共有）
+│   │   └── useFieldMap.ts ← 地図生成＋表示状態同期の共通フック（通常の1枚・比較の2枚で共有）
+│   ├── pages/
+│   │   ├── ViewerPage.tsx ← 通常表示ページ（指数の複数重ね＋透過度）
+│   │   └── ComparePage.tsx← 左右比較ページ（左右レイヤー選択＋向き）
+│   ├── components/
+│   │   ├── AppHeader.tsx      ← ロゴ＋タイトル＋ページ切替ナビ（共通）
+│   │   ├── ControlSections.tsx← 圃場/背景/輪郭セクション（両サイドバー共有）
+│   │   ├── Map.tsx           ← 通常表示の単一地図（useFieldMap の薄いラッパ）
+│   │   ├── LayerControl.tsx  ← 通常表示サイドバー
+│   │   ├── CompareMap.tsx    ← 比較用の2地図＋maplibre-gl-compare 連携
+│   │   └── CompareControl.tsx← 比較表示サイドバー
+│   └── types/
+│       └── maplibre-gl-compare.d.ts ← 型定義（本体は型を同梱しないため自前）
 └── public/                ← 本番タイル配置先（開発時は不要）
     └── tiles/（デプロイ時に index_map_color/ の内容をコピー）
 ```
+
+依存追加: `react-router-dom` / `@maplibre/maplibre-gl-compare`（+`events` … compare が内部で使う EventEmitter の
+ブラウザ用ポリフィル。Vite のバンドルに必要）。

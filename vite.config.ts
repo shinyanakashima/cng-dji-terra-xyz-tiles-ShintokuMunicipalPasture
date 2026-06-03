@@ -16,7 +16,7 @@ function localTilePlugin(): Plugin {
     name: 'local-tile-server',
     apply: 'serve',
     configureServer(server) {
-      server.middlewares.use('/tiles', (req, res, next) => {
+      server.middlewares.use('/tiles', (req, res) => {
         const url = req.url ?? ''
         // /truecolor/{z}/... は ../map/{z}/... 、それ以外は ../map/index_map_color/{INDEX}/...
         const filePath = url.startsWith('/truecolor/')
@@ -31,9 +31,13 @@ function localTilePlugin(): Plugin {
             return
           }
         } catch {
-          // ファイルが存在しない場合は next() で 404 に任せる
+          // ファイルが存在しない場合は下の 404 へ
         }
-        next()
+        // データのない圃場外タイルは 404 を返す。
+        // next() に委ねると Vite の SPA フォールバックが index.html(200) を返し、
+        // MapLibre が「画像をデコードできない」エラーを大量に出すため、ここで明示的に 404。
+        res.statusCode = 404
+        res.end()
       })
     },
   }

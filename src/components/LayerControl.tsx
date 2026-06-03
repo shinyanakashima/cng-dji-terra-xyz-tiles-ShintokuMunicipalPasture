@@ -1,67 +1,32 @@
-import { INDEX_META, BASE_MAPS } from '../constants'
-import type { VegetationIndex, BaseMap, FieldDef } from '../constants'
+import { INDEX_META } from '../constants'
+import type { VegetationIndex } from '../constants'
+import { FieldSection, BaseMapSection, OutlineToggle } from './ControlSections'
+import type { SharedViewProps } from './ControlSections'
 
-interface Props {
-  fields: FieldDef[]
-  activeFieldId: string
-  baseMap: BaseMap
-  showTrueColor: boolean
-  showOutline: boolean
+interface Props extends SharedViewProps {
   visibleIndices: Record<string, boolean>
   opacityByIndex: Record<string, number>
-  onFieldChange: (id: string) => void
-  onBaseMapChange: (b: BaseMap) => void
-  onTrueColorChange: (v: boolean) => void
-  onOutlineChange: (v: boolean) => void
   onIndexToggle: (idx: VegetationIndex, v: boolean) => void
   onIndexOpacityChange: (idx: VegetationIndex, v: number) => void
 }
 
-export default function LayerControl({
-  fields,
-  activeFieldId,
-  baseMap,
-  showTrueColor,
-  showOutline,
-  visibleIndices,
-  opacityByIndex,
-  onFieldChange,
-  onBaseMapChange,
-  onTrueColorChange,
-  onOutlineChange,
-  onIndexToggle,
-  onIndexOpacityChange,
-}: Props) {
-  const activeField = fields.find((f) => f.id === activeFieldId) ?? fields[0]
+/** 通常表示のサイドバー。植生指数を個別ON/OFF＋指数ごとの透過度で重ね表示する。 */
+export default function LayerControl(props: Props) {
+  const {
+    field,
+    showTrueColor,
+    visibleIndices,
+    opacityByIndex,
+    onTrueColorChange,
+    onIndexToggle,
+    onIndexOpacityChange,
+  } = props
   return (
     <aside className="sidebar">
       <p className="sidebar-title">Mimori v0.2.0</p>
 
-      <div className="sidebar-section">
-        <h2>圃場</h2>
-        {fields.map((f) => (
-          <button
-            key={f.id}
-            className={`index-btn${activeFieldId === f.id ? ' active' : ''}`}
-            onClick={() => onFieldChange(f.id)}
-          >
-            <div className="index-btn-name">{f.label}</div>
-          </button>
-        ))}
-      </div>
-
-      <div className="sidebar-section">
-        <h2>背景</h2>
-        {BASE_MAPS.map((b) => (
-          <button
-            key={b.id}
-            className={`index-btn${baseMap === b.id ? ' active' : ''}`}
-            onClick={() => onBaseMapChange(b.id)}
-          >
-            <div className="index-btn-name">{b.label}</div>
-          </button>
-        ))}
-      </div>
+      <FieldSection {...props} />
+      <BaseMapSection {...props} />
 
       <div className="sidebar-section">
         <h2>オルソ画像</h2>
@@ -73,19 +38,12 @@ export default function LayerControl({
           />
           <span>トゥルーカラー（ドローン空撮）</span>
         </label>
-        <label className="toggle-row">
-          <input
-            type="checkbox"
-            checked={showOutline}
-            onChange={(e) => onOutlineChange(e.target.checked)}
-          />
-          <span>圃場輪郭</span>
-        </label>
+        <OutlineToggle {...props} />
       </div>
 
       <div className="sidebar-section">
         <h2>植生指数</h2>
-        {activeField.indices.map((idx) => {
+        {field.indices.map((idx) => {
           const on = visibleIndices[idx] ?? false
           const op = opacityByIndex[idx] ?? 0.8
           return (
