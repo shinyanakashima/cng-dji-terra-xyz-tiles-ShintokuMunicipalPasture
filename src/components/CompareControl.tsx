@@ -22,18 +22,26 @@ export default function CompareControl(props: Props) {
 
       <div className="sidebar-section">
         <h2>比較の向き</h2>
-        <button
-          className={`index-btn${vertical ? ' active' : ''}`}
-          onClick={() => onOrientationChange('vertical')}
-        >
-          <div className="index-btn-name">左右（縦バー）</div>
-        </button>
-        <button
-          className={`index-btn${!vertical ? ' active' : ''}`}
-          onClick={() => onOrientationChange('horizontal')}
-        >
-          <div className="index-btn-name">上下（横バー）</div>
-        </button>
+        <div className="radio-row">
+          <label className="radio-option">
+            <input
+              type="radio"
+              name="compare-orientation"
+              checked={vertical}
+              onChange={() => onOrientationChange('vertical')}
+            />
+            <span>左右</span>
+          </label>
+          <label className="radio-option">
+            <input
+              type="radio"
+              name="compare-orientation"
+              checked={!vertical}
+              onChange={() => onOrientationChange('horizontal')}
+            />
+            <span>上下</span>
+          </label>
+        </div>
       </div>
 
       <div className="sidebar-section">
