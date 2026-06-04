@@ -22,8 +22,9 @@ interface Props {
 export default function CompareMap({ field, left, right, orientation }: Props) {
   const wrapperRef = useRef<HTMLDivElement>(null)
   const a = useFieldMap(field, left, { controls: false })
-  // コントロールは上の地図(b)のみに、右下へまとめて配置（上隅は左右のレイヤー選択に使う）
-  const b = useFieldMap(field, right, { controls: true, navPosition: 'bottom-right', scalePosition: 'bottom-right' })
+  // コントロールは上の地図(b)のみに。拡大縮小は右上、縮尺バーは右下(attribution の角)へ。
+  // レイヤー選択は左上にまとめるので右上を拡大縮小に使える。
+  const b = useFieldMap(field, right, { controls: true, navPosition: 'top-right', scalePosition: 'bottom-right' })
 
   useEffect(() => {
     const wrapper = wrapperRef.current

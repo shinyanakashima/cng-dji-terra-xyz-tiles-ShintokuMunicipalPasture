@@ -239,10 +239,17 @@ html, body, #root {
   display: flex;
 }
 
-/* 地図上に重ねる左右のレイヤー選択プルダウン */
-.compare-overlay {
+/* レイヤー選択プルダウンを地図の左上にまとめて縦に並べる */
+.compare-overlays {
   position: absolute;
+  top: 10px;
+  left: 10px;
   z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.compare-overlay {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -257,11 +264,7 @@ html, body, #root {
   font-weight: 700;
   color: #7eb8f7;
   flex-shrink: 0;
+  width: 1.6em; /* 左/右・上/下 のラベル幅を揃えてセレクトを縦に整列 */
+  text-align: center;
 }
-.compare-overlay .compare-select { width: auto; min-width: 150px; }
-/* 縦バー: 左レイヤー=左上 / 右レイヤー=右上 */
-.compare-overlay-a.vertical { top: 10px; left: 10px; }
-.compare-overlay-b.vertical { top: 10px; right: 10px; }
-/* 横バー: 上レイヤー=左上 / 下レイヤー=左下 */
-.compare-overlay-a.horizontal { top: 10px; left: 10px; }
-.compare-overlay-b.horizontal { bottom: 10px; left: 10px; }
+.compare-overlay .compare-select { width: auto; min-width: 160px; }

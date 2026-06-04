@@ -23,22 +23,20 @@ function sideState(sel: string, shared: SharedViewProps): FieldMapState {
   }
 }
 
-/** 地図上に重ねるレイヤー選択プルダウン（左右それぞれ） */
+/** 地図左上に重ねるレイヤー選択プルダウン（左右＝上下を縦に並べる） */
 function LayerSelect({
-  position,
   label,
   value,
   options,
   onChange,
 }: {
-  position: string
   label: string
   value: string
   options: LayerOption[]
   onChange: (v: string) => void
 }) {
   return (
-    <div className={`compare-overlay ${position}`}>
+    <div className="compare-overlay">
       <span className="compare-overlay-label">{label}</span>
       <select className="compare-select" value={value} onChange={(e) => onChange(e.target.value)}>
         {options.map((o) => (
@@ -82,20 +80,10 @@ export default function ComparePage(shared: SharedViewProps) {
           right={sideState(safeRight, shared)}
           orientation={orientation}
         />
-        <LayerSelect
-          position={`compare-overlay-a ${orientation}`}
-          label={vertical ? '左' : '上'}
-          value={safeLeft}
-          options={options}
-          onChange={setLeftLayer}
-        />
-        <LayerSelect
-          position={`compare-overlay-b ${orientation}`}
-          label={vertical ? '右' : '下'}
-          value={safeRight}
-          options={options}
-          onChange={setRightLayer}
-        />
+        <div className="compare-overlays">
+          <LayerSelect label={vertical ? '左' : '上'} value={safeLeft} options={options} onChange={setLeftLayer} />
+          <LayerSelect label={vertical ? '右' : '下'} value={safeRight} options={options} onChange={setRightLayer} />
+        </div>
       </div>
     </div>
   )
