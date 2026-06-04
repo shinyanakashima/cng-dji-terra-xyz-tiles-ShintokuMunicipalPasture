@@ -185,7 +185,8 @@ html, body, #root {
   min-width: 0;
   overflow: hidden;
 }
-.compare-map {
+/* 詳細度を .maplibregl-map（position:relative）より高くして確実に絶対配置で重ねる */
+.compare-wrapper .compare-map {
   position: absolute;
   inset: 0;
   width: 100%;
