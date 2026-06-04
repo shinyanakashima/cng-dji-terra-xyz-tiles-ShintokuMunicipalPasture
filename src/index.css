@@ -207,7 +207,9 @@ html, body, #root {
 .compare-select:focus { outline: none; border-color: #3a9bd5; }
 
 /* スワイプの分割バー・つまみを控えめに（既定の大きい青丸を小さく半透明に） */
-.compare-wrapper .maplibregl-compare { width: 1px; background-color: rgba(255, 255, 255, 0.85); }
+.compare-wrapper .maplibregl-compare { background-color: rgba(255, 255, 255, 0.85); }
+/* 縦バーのみ幅1pxに（横バーは幅100%のままにしないとつまみが中央に来ない） */
+.compare-wrapper .maplibregl-compare:not(.maplibregl-compare-horizontal) { width: 1px; }
 .compare-wrapper .maplibregl-compare-horizontal { height: 1px; }
 .compare-wrapper .maplibregl-compare .compare-swiper-vertical,
 .compare-wrapper .maplibregl-compare .compare-swiper-horizontal {
@@ -219,8 +221,10 @@ html, body, #root {
   opacity: 0.7;
   transition: opacity 0.15s, background-color 0.15s;
 }
+/* 縦バー: バー(1px)上で水平中央に。つまみ(26px)の半分だけ左へ寄せる */
 .compare-wrapper .maplibregl-compare .compare-swiper-vertical { left: -13px; margin: -13px 0 0; }
-.compare-wrapper .maplibregl-compare .compare-swiper-horizontal { margin: -13px 0 0; }
+/* 横バー: バー幅100%の水平中央(left:50%)から、つまみ半分ぶん戻して中央に置く */
+.compare-wrapper .maplibregl-compare .compare-swiper-horizontal { top: 50%; left: 50%; margin: -13px 0 0 -13px; }
 .compare-wrapper .maplibregl-compare .compare-swiper-vertical:hover,
 .compare-wrapper .maplibregl-compare .compare-swiper-horizontal:hover {
   opacity: 1;
