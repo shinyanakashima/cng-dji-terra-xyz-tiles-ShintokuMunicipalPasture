@@ -226,3 +226,38 @@ html, body, #root {
   opacity: 1;
   background-color: rgba(58, 155, 213, 0.85);
 }
+
+/* 地図エリア（比較地図＋レイヤー選択オーバーレイの基準） */
+.compare-area {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+}
+
+/* 地図上に重ねる左右のレイヤー選択プルダウン */
+.compare-overlay {
+  position: absolute;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(26, 26, 46, 0.9);
+  border: 1px solid #2e2e50;
+  border-radius: 6px;
+  padding: 5px 8px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.45);
+}
+.compare-overlay-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #7eb8f7;
+  flex-shrink: 0;
+}
+.compare-overlay .compare-select { width: auto; min-width: 150px; }
+/* 縦バー: 左レイヤー=左上 / 右レイヤー=右上 */
+.compare-overlay-a.vertical { top: 10px; left: 10px; }
+.compare-overlay-b.vertical { top: 10px; right: 10px; }
+/* 横バー: 上レイヤー=左上 / 下レイヤー=左下 */
+.compare-overlay-a.horizontal { top: 10px; left: 10px; }
+.compare-overlay-b.horizontal { bottom: 10px; left: 10px; }

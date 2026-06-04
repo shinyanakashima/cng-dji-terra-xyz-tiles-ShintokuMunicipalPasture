@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import maplibregl from 'maplibre-gl'
+import type { ControlPosition } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { buildFieldStyle, DEFAULT_INDEX_OPACITY } from './mapStyle'
 import type { FieldMapState } from './mapStyle'
@@ -9,6 +10,10 @@ import type { FieldDef } from '../constants'
 interface Options {
   /** ナビゲーション/スケールのコントロールを載せるか（比較表示では片側のみ true にする） */
   controls?: boolean
+  /** ナビゲーションコントロールの配置 */
+  navPosition?: ControlPosition
+  /** スケールコントロールの配置 */
+  scalePosition?: ControlPosition
 }
 
 /**
@@ -18,7 +23,7 @@ interface Options {
  * 圃場の切替（center/zoom が変わる）は呼び出し側で key を付けて再マウントする前提。
  */
 export function useFieldMap(field: FieldDef, state: FieldMapState, options: Options = {}) {
-  const { controls = true } = options
+  const { controls = true, navPosition = 'top-right', scalePosition = 'bottom-left' } = options
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
   // ロード完了を state にして、各同期 useEffect がロード後に確実に再実行されるようにする
@@ -35,8 +40,8 @@ export function useFieldMap(field: FieldDef, state: FieldMapState, options: Opti
       maxZoom: 24, // 既定22 → z23タイルへ到達＋少し拡大(オーバーズーム)で詳細確認
     })
     if (controls) {
-      map.addControl(new maplibregl.NavigationControl(), 'top-right')
-      map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }), 'bottom-left')
+      map.addControl(new maplibregl.NavigationControl(), navPosition)
+      map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }), scalePosition)
     }
     map.on('load', () => setReady(true))
     mapRef.current = map
