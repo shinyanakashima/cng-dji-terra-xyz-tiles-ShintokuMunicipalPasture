@@ -1,5 +1,12 @@
 ﻿# cng-dji-terra-xyz-tiles-ShintokuMunicipalPasture
 
+> **⚠️ 開発は移管されました（2026-07）**
+>
+> 本アプリの開発は Mimori モノレポ **`Zukosha/mimori-v1-ngd`** の `projects/smp/` に統合されました。
+> 機能開発・UI改善・タイル追加は今後モノレポ側で行ってください（本リポジトリへは反映されません）。
+> このリポジトリは現行の GitHub Pages 配信を維持するためだけに残しており、
+> モノレポ側の配信（Cloudflare Pages 等）へ切り替え後にアーカイブ予定です。
+
 MapLibre + XYZ PNG タイルによる植生指数ビューア。
 DJI Terra が `index_map_color/` に出力した既存タイルをそのまま配信する最もシンプルな構成。
 
